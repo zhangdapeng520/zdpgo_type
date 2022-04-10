@@ -1,3 +1,3 @@
-module zgo_type
+module github.com/zhangdapeng520/zdpgo_type
 
-go 1.16
+go 1.17
