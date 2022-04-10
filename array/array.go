@@ -74,7 +74,7 @@ func (arr *Array) Delete(index int) {
 func (arr *Array) String() string {
 	arr.lock.Lock()
 	out := "["
-	arrLength := arr.Length() - 1
+	arrLength := arr.Size - 1
 	for i, v := range arr.values {
 		out += strconv.Itoa(v)
 		if i != arrLength {
