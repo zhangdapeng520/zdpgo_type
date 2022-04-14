@@ -1,7 +1,7 @@
 package array
 
 import (
-	"strconv"
+	"fmt"
 	"sync"
 )
 
@@ -9,11 +9,11 @@ import (
 type Array struct {
 	lock   sync.Mutex // 保证线程安全
 	Size   int        // 元素个数
-	values []int
+	values []interface{}
 }
 
 // NewArray 创建数组
-func NewArray(values ...int) *Array {
+func NewArray(values ...interface{}) *Array {
 	arr := Array{}
 	arr.values = values
 	arr.Size = len(values)
@@ -21,7 +21,7 @@ func NewArray(values ...int) *Array {
 }
 
 // Get 根据索引获取元素
-func (arr *Array) Get(index int) int {
+func (arr *Array) Get(index int) interface{} {
 	arr.lock.Lock()
 	value := arr.values[index]
 	arr.lock.Unlock()
@@ -76,7 +76,7 @@ func (arr *Array) String() string {
 	out := "["
 	arrLength := arr.Size - 1
 	for i, v := range arr.values {
-		out += strconv.Itoa(v)
+		out += fmt.Sprintf("%v", v)
 		if i != arrLength {
 			out += ","
 		}

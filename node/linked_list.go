@@ -1,7 +1,7 @@
 package node
 
 import (
-	"strconv"
+	"fmt"
 	"sync"
 )
 
@@ -19,13 +19,13 @@ func NewLinkedList() *LinkedList {
 }
 
 // Get 根据索引获取元素的值
-func (l *LinkedList) Get(index int) int {
+func (l *LinkedList) Get(index int) interface{} {
 	p := l.getNode(index)
 	return p.Data
 }
 
 // Set 根据索引修改元素的值
-func (l *LinkedList) Set(index, value int) {
+func (l *LinkedList) Set(index int, value interface{}) {
 	p := l.getNode(index)
 	p.Data = value
 }
@@ -50,7 +50,7 @@ func (l *LinkedList) getNode(index int) *Node {
 }
 
 // Insert 插入数据
-func (l *LinkedList) Insert(index, data int) {
+func (l *LinkedList) Insert(index int, data interface{}) {
 	// 判断索引越界
 	if index < 0 || index > l.Size {
 		panic("索引越界：给出的索引超过链表范围！")
@@ -81,7 +81,7 @@ func (l *LinkedList) Insert(index, data int) {
 }
 
 // Append 在末尾追加元素
-func (l *LinkedList) Append(data int) {
+func (l *LinkedList) Append(data interface{}) {
 	l.Insert(l.Size, data)
 }
 
@@ -121,7 +121,7 @@ func (l *LinkedList) String() string {
 	out := "["
 	p := l.Head
 	for {
-		out += strconv.Itoa(p.Data)
+		out += fmt.Sprintf("%v", p.Data)
 		if p.Next == nil {
 			break
 		} else {
