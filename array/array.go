@@ -29,14 +29,14 @@ func (arr *Array) Get(index int) interface{} {
 }
 
 // Set 根据索引修改元素
-func (arr *Array) Set(index int, value int) {
+func (arr *Array) Set(index int, value interface{}) {
 	arr.lock.Lock()
 	arr.values[index] = value
 	arr.lock.Unlock()
 }
 
 // Append 尾部插入
-func (arr *Array) Append(value int) {
+func (arr *Array) Append(value interface{}) {
 	arr.lock.Lock()
 	arr.values = append(arr.values, value)
 	arr.Size += 1
@@ -44,7 +44,7 @@ func (arr *Array) Append(value int) {
 }
 
 // Insert 中间插入
-func (arr *Array) Insert(index, value int) {
+func (arr *Array) Insert(index int, value interface{}) {
 	if index < 0 || index > arr.Size {
 		panic("索引越界：数组不存在该索引！")
 	}
