@@ -1,4 +1,4 @@
-package array
+package zdpgo_type
 
 import (
 	"fmt"
@@ -44,4 +44,22 @@ func TestArray_basic(t *testing.T) {
 	}()
 	arr.Insert(111, 2333)
 	fmt.Println(arr.String())
+}
+
+func TestArray_Remove(t *testing.T) {
+	arr := NewArray("a", "b", "c")
+	err := arr.Remove("a")
+	fmt.Println(arr.String(), err)
+
+	err = arr.Remove("a")
+	fmt.Println(arr.String(), err)
+
+	err = arr.Remove("b")
+	fmt.Println(arr.String(), err)
+
+	err = arr.Remove("c")
+	fmt.Println(arr.String(), err)
+
+	err = arr.Remove("d")
+	fmt.Println(arr.String(), err)
 }

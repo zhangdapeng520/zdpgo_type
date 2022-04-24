@@ -1,6 +1,7 @@
-package array
+package zdpgo_type
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 )
@@ -68,6 +69,38 @@ func (arr *Array) Delete(index int) {
 	arr.values = append(arr.values[:index], tail...) // 插入剩下的元素
 	arr.Size -= 1
 	arr.lock.Unlock()
+}
+
+func (arr *Array) Remove(element interface{}) (err error) {
+	arr.lock.Lock()
+	if arr.Size == 0 {
+		err = errors.New("数组为空，无法删除元素")
+		arr.lock.Unlock()
+		return
+	}
+
+	// 遍历数组，找到该元素然后删除
+	var newArr []interface{}
+	var flag bool
+	for _, v := range arr.values {
+		if v != element {
+			newArr = append(newArr, v)
+		} else {
+			flag = true
+		}
+	}
+	if !flag {
+		err = errors.New("要删除的元素不存在")
+		arr.lock.Unlock()
+		return
+	}
+
+	// 替换表原本的数组
+	arr.values = newArr
+	arr.Size -= 1
+	arr.lock.Unlock()
+
+	return
 }
 
 // String 获取数组的字符串表示
