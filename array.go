@@ -103,8 +103,8 @@ func (arr *Array) Remove(element interface{}) (err error) {
 	return
 }
 
-// String 获取数组的字符串表示
-func (arr *Array) String() string {
+// ToString 获取数组的字符串表示
+func (arr *Array) ToString() string {
 	arr.lock.Lock()
 	out := "["
 	arrLength := arr.Size - 1
@@ -117,6 +117,11 @@ func (arr *Array) String() string {
 	out += "]"
 	arr.lock.Unlock()
 	return out
+}
+
+// ToSliceValues 获取数组的切片表示
+func (arr *Array) ToSliceValues() []interface{} {
+	return arr.values
 }
 
 // Length 获取数组的长度
