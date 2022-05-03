@@ -2,7 +2,12 @@ package zdpgo_type
 
 import (
 	"fmt"
+	"github.com/zhangdapeng520/zdpgo_test"
 	"testing"
+)
+
+var (
+	T = zdpgo_test.New()
 )
 
 // 测试数组的基本使用
@@ -63,4 +68,59 @@ func TestArray_Remove(t *testing.T) {
 
 	err = arr.Remove("d")
 	fmt.Println(arr.ToString(), err)
+}
+
+func TestArray_Index(t *testing.T) {
+	arr := NewArray("a", "b", "c")
+	tables := []struct {
+		value string
+		index int
+	}{
+		{"a", 0},
+		{"b", 1},
+		{"c", 2},
+		{"d", -1},
+	}
+	T.SetTestObj(t)
+	for _, table := range tables {
+		tIndex := arr.Index(table.value)
+		T.Assert.Equal(table.index, tIndex)
+	}
+}
+
+func TestArray_Contains(t *testing.T) {
+	arr := NewArray("a", "b", "c")
+	tables := []struct {
+		value string
+		flag  bool
+	}{
+		{"a", true},
+		{"b", true},
+		{"c", true},
+		{"d", false},
+	}
+	T.SetTestObj(t)
+	for _, table := range tables {
+		tFlag := arr.Contains(table.value)
+		T.Assert.Equal(table.flag, tFlag)
+	}
+}
+
+func TestArray_Delete(t *testing.T) {
+	arr := NewArray("a", "b", "c")
+	tables := []struct {
+		index int
+		flag  bool
+	}{
+		{2, false},
+		{1, false},
+		{0, false},
+	}
+	T.SetTestObj(t)
+	for _, table := range tables {
+		value := arr.Get(table.index)
+		err := arr.Delete(table.index)
+		T.Assert.Equal(err, nil)
+		T.Assert.Equal(table.flag, arr.Contains(value))
+	}
 }

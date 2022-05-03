@@ -46,7 +46,7 @@ func (arr *Array) Append(value interface{}) {
 
 // Insert 中间插入
 func (arr *Array) Insert(index int, value interface{}) {
-	if index < 0 || index > arr.Size {
+	if index < 0 || index >= arr.Size {
 		panic("索引越界：数组不存在该索引！")
 	}
 	arr.lock.Lock()
@@ -60,15 +60,17 @@ func (arr *Array) Insert(index int, value interface{}) {
 }
 
 // Delete 根据索引删除元素
-func (arr *Array) Delete(index int) {
-	if index < 0 || index > arr.Size {
-		panic("索引越界：数组不存在该索引！")
+func (arr *Array) Delete(index int) error {
+	if index < 0 || index >= arr.Size {
+		return errors.New("索引越界：数组不存在该索引！")
 	}
 	arr.lock.Lock()
 	tail := arr.values[index+1:]                     // 剩下的元素
 	arr.values = append(arr.values[:index], tail...) // 插入剩下的元素
 	arr.Size -= 1
 	arr.lock.Unlock()
+
+	return nil
 }
 
 func (arr *Array) Remove(element interface{}) (err error) {
@@ -127,4 +129,19 @@ func (arr *Array) ToSliceValues() []interface{} {
 // Length 获取数组的长度
 func (arr *Array) Length() int {
 	return arr.Size
+}
+
+// Index 查找索引
+func (arr *Array) Index(element interface{}) int {
+	for i := 0; i < arr.Size; i++ {
+		if arr.values[i] == element {
+			return i
+		}
+	}
+	return -1
+}
+
+// Contains 判断是否包含
+func (arr *Array) Contains(element interface{}) bool {
+	return arr.Index(element) != -1
 }
