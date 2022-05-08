@@ -64,3 +64,26 @@ func TestArray_Remove(t *testing.T) {
 	err = arr.Remove("d")
 	fmt.Println(arr.ToString(), err)
 }
+
+func TestArray_IsExists(t *testing.T) {
+	// 字符串
+	arr := NewArray("a", "b", "c")
+	fmt.Println(arr.IsExists("a"))
+	fmt.Println(arr.IsExists("aa"))
+
+	// 数字
+	arr1 := NewArray(1, 2, 3)
+	fmt.Println(arr1.IsExists(1))
+	fmt.Println(arr1.IsExists(11))
+}
+
+func TestArray_AddIfNotExists(t *testing.T) {
+	arr := NewArray("a", "b", "c")
+	arr.AddIfNotExists("a")
+	arr.AddIfNotExists("aa")
+	arr.AddIfNotExists("b")
+	arr.AddIfNotExists("bb")
+	arr.AddIfNotExists("c")
+	arr.AddIfNotExists("cc")
+	fmt.Println(arr.ToSliceValues())
+}

@@ -128,3 +128,20 @@ func (arr *Array) ToSliceValues() []interface{} {
 func (arr *Array) Length() int {
 	return arr.Size
 }
+
+// IsExists 判断元素是否已存在
+func (arr *Array) IsExists(element interface{}) bool {
+	for _, v := range arr.values {
+		if v == element {
+			return true
+		}
+	}
+	return false
+}
+
+// AddIfNotExists 如果不存在 ，则添加元素
+func (arr *Array) AddIfNotExists(element interface{}) {
+	if !arr.IsExists(element) {
+		arr.Append(element)
+	}
+}
