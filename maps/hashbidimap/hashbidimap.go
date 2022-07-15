@@ -1,18 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package hashbidimap implements a bidirectional maps backed by two hashmaps.
-//
-// A bidirectional maps, or hash bag, is an associative data structure in which the (key,value) pairs form a one-to-one correspondence.
-// Thus the binary relation is functional in each direction: value can also act as a key to key.
-// A pair (a,b) thus provides a unique coupling between 'a' and 'b' so that 'b' can be found when 'a' is used as a key and 'a' can be found when 'b' is used as a key.
-//
-// Elements are unordered in the maps.
-//
-// Structure is not thread safe.
-//
-// Reference: https://en.wikipedia.org/wiki/Bidirectional_map
 package hashbidimap
 
 import (

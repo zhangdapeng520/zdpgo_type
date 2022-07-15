@@ -1,12 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package hashset implements a set backed by a hash table.
-//
-// Structure is not thread safe.
-//
-// References: http://en.wikipedia.org/wiki/Set_%28abstract_data_type%29
 package hashset
 
 import (

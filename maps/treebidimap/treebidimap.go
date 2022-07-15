@@ -1,20 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package treebidimap implements a bidirectional maps backed by two red-black tree.
-//
-// This structure guarantees that the maps will be in both ascending key and value order.
-//
-// Other than key and value ordering, the goal with this structure is to avoid duplication of elements, which can be significant if contained elements are large.
-//
-// A bidirectional maps, or hash bag, is an associative data structure in which the (key,value) pairs form a one-to-one correspondence.
-// Thus the binary relation is functional in each direction: value can also act as a key to key.
-// A pair (a,b) thus provides a unique coupling between 'a' and 'b' so that 'b' can be found when 'a' is used as a key and 'a' can be found when 'b' is used as a key.
-//
-// Structure is not thread safe.
-//
-// Reference: https://en.wikipedia.org/wiki/Bidirectional_map
 package treebidimap
 
 import (

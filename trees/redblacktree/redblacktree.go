@@ -1,14 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package redblacktree implements a red-black tree.
-//
-// Used by TreeSet and TreeMap.
-//
-// Structure is not thread safe.
-//
-// References: http://en.wikipedia.org/wiki/Red%E2%80%93black_tree
 package redblacktree
 
 import (

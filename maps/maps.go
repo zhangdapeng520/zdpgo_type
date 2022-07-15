@@ -2,7 +2,7 @@ package maps
 
 import "github.com/zhangdapeng520/zdpgo_type/containers"
 
-// Map interface that all maps implement
+// Map 所有map类型都应该实现的方法
 type Map[K comparable, V any] interface {
 	Put(key K, value V)
 	Get(key K) (value V, found bool)

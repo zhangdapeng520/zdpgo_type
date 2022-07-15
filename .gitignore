@@ -1,5 +1,6 @@
-**/.idea
-**/.vscode
-**/tmp
-**/log
-**/mtest*
+.idea
+.vscode
+tmp
+log
+mtest*
+test

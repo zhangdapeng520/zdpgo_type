@@ -1,12 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package linkedliststack implements a stack backed by a singly-linked list.
-//
-// Structure is not thread safe.
-//
-// Reference:https://en.wikipedia.org/wiki/Stack_%28abstract_data_type%29#Linked_list
 package linkedliststack
 
 import (

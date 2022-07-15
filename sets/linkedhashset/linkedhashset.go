@@ -1,16 +1,3 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package linkedhashset is a set that preserves insertion-order.
-//
-// It is backed by a hash table to store values and doubly-linked list to store ordering.
-//
-// Note that insertion-order is not affected if an element is re-inserted into the set.
-//
-// Structure is not thread safe.
-//
-// References: http://en.wikipedia.org/wiki/Set_%28abstract_data_type%29
 package linkedhashset
 
 import (

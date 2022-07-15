@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-/*
-@Time : 2022/5/10 15:14
-@Author : 张大鹏
-@File : array_bool_test.go
-@Software: Goland2021.3.1
-@Description:
-*/
-
 // 判断是否全为true
 func TestArrayBool_IsAllTrue(t *testing.T) {
 	ab := NewArrayBool()

@@ -5,14 +5,6 @@ import (
 	"sync"
 )
 
-/*
-@Time : 2022/5/10 15:07
-@Author : 张大鹏
-@File : array_bool.go
-@Software: Goland2021.3.1
-@Description: 布尔数组类型
-*/
-
 type ArrayBool struct {
 	size   int
 	values []bool

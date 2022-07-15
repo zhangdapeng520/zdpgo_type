@@ -1,20 +1,10 @@
-// Copyright (c) 2015, Emir Pasic. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package treemap implements a maps backed by red-black tree.
-//
-// Elements are ordered by key in the maps.
-//
-// Structure is not thread safe.
-//
-// Reference: http://en.wikipedia.org/wiki/Associative_array
 package treemap
 
 import (
 	"fmt"
-	"github.com/zhangdapeng520/zdpgo_type/maps"
 	"strings"
+
+	"github.com/zhangdapeng520/zdpgo_type/maps"
 
 	rbt "github.com/zhangdapeng520/zdpgo_type/trees/redblacktree"
 	"github.com/zhangdapeng520/zdpgo_type/utils"
