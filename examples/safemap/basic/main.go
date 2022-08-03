@@ -10,7 +10,7 @@ package main
 
 import (
 	"fmt"
-	. "github.com/zhangdapeng520/zdpgo_type/zmap"
+	. "github.com/zhangdapeng520/zdpgo_type/maps/safemap"
 )
 
 func main() {

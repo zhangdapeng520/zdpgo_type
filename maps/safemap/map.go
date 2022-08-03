@@ -1,4 +1,4 @@
-package zmap
+package safemap
 
 // Map 定义map字典类型，key必须是可序列化的，v可以是任意类型
 type Map[K comparable, V any] struct {

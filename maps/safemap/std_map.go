@@ -1,4 +1,4 @@
-package zmap
+package safemap
 
 import (
 	"bytes"

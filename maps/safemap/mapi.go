@@ -1,4 +1,4 @@
-package zmap
+package safemap
 
 // MapI Map类型的接口
 type MapI[K comparable, V any] interface {

@@ -1,4 +1,4 @@
-package zmap
+package safemap
 
 import (
 	"sync"
@@ -130,7 +130,7 @@ func (m *SafeMap[K, V]) MarshalBinary() ([]byte, error) {
 	return m.items.MarshalBinary()
 }
 
-// UnmarshalBinary 将自己数组加载为map
+// UnmarshalBinary 将字节数组加载为map
 func (m *SafeMap[K, V]) UnmarshalBinary(data []byte) (err error) {
 	m.Lock()
 	defer m.Unlock()

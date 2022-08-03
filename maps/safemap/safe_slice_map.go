@@ -1,4 +1,4 @@
-package zmap
+package safemap
 
 import (
 	"bytes"
@@ -7,23 +7,27 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
-// SliceMap is a go maps that uses a slice to save the order of its keys so that the maps can
-// be ranged in a predictable order. By default, the order will be the same order that items were inserted,
+// SafeSliceMap is a go maps that uses a slice to save the order of its keys so that the maps can
+// be ranged in a predictable order. SafeSliceMap is safe for concurrent use.
+//
+// By default, the order will be the same order that items were inserted,
 // i.e. a FIFO list, which is similar to how PHP arrays work. You can also define a sort function on the list
 // to keep it sorted.
 //
 // The recommended way to create a SliceMap is to first declare a concrete type alias, and then call
 // new on it, like this:
-//   type MyMap = SliceMap[string,int]
+//   type MyMap = SafeSliceMap[string,int]
 //
 //   m := new(MyMap)
 //
 // This will allow you to swap in a different kind of Map just by changing the type.
 //
 // Call SetSortFunc to give the maps a function that will keep the keys sorted in a particular order.
-type SliceMap[K comparable, V any] struct {
+type SafeSliceMap[K comparable, V any] struct {
+	sync.RWMutex
 	items StdMap[K, V]
 	order []K
 	lessF func(key1, key2 K, val1, val2 V) bool
@@ -31,12 +35,12 @@ type SliceMap[K comparable, V any] struct {
 
 // SetSortFunc sets the sort function which will determine the order of the items in the maps
 // on an ongoing basis. Normally, items will iterate in the order they were added.
-//
-// When you call SetSortFunc, the maps keys will be sorted. To turn off sorting, set the sort function to nil.
-//
 // The sort function is a Less function, that returns true when item 1 is "less" than item 2.
 // The sort function receives both the keys and values, so it can use either or both to decide how to sort.
-func (m *SliceMap[K, V]) SetSortFunc(f func(key1, key2 K, val1, val2 V) bool) {
+func (m *SafeSliceMap[K, V]) SetSortFunc(f func(key1, key2 K, val1, val2 V) bool) {
+	m.Lock()
+	defer m.Unlock()
+
 	m.lessF = f
 	if f != nil && len(m.order) > 0 {
 		sort.Slice(m.order, func(i, j int) bool {
@@ -49,9 +53,11 @@ func (m *SliceMap[K, V]) SetSortFunc(f func(key1, key2 K, val1, val2 V) bool) {
 //
 // If the key already exists, the range order will not change. If you want the order
 // to change, call Delete first, and then Set.
-func (m *SliceMap[K, V]) Set(key K, val V) {
+func (m *SafeSliceMap[K, V]) Set(key K, val V) {
 	var ok bool
 	var oldVal V
+
+	m.Lock()
 
 	if m.items == nil {
 		m.items = make(map[K]V)
@@ -80,12 +86,13 @@ func (m *SliceMap[K, V]) Set(key K, val V) {
 		}
 	}
 	m.items[key] = val
+	m.Unlock()
 }
 
 // SetAt sets the given key to the given value, but also inserts it at the index specified.
 // If the index is bigger than
 // the length, it puts it at the end. Negative indexes are backwards from the end.
-func (m *SliceMap[K, V]) SetAt(index int, key K, val V) {
+func (m *SafeSliceMap[K, V]) SetAt(index int, key K, val V) {
 	if m.lessF != nil {
 		panic("cannot use SetAt if you are also using a sort function")
 	}
@@ -95,12 +102,13 @@ func (m *SliceMap[K, V]) SetAt(index int, key K, val V) {
 		return
 	}
 
-	var ok bool
 	var emptyKey K
 
-	if _, ok = m.items[key]; ok {
+	// Be careful here, since both Has and Delete need to acquire locks
+	if m.Has(key) {
 		m.Delete(key)
 	}
+	m.Lock()
 	if index <= -len(m.items) {
 		index = 0
 	}
@@ -113,10 +121,12 @@ func (m *SliceMap[K, V]) SetAt(index int, key K, val V) {
 	m.order[index] = key
 
 	m.items[key] = val
+	m.Unlock()
 }
 
 // Delete removes the item with the given key.
-func (m *SliceMap[K, V]) Delete(key K) {
+func (m *SafeSliceMap[K, V]) Delete(key K) {
+	m.Lock()
 	if _, ok := m.items[key]; ok {
 		if m.lessF != nil {
 			oldVal := m.items[key]
@@ -134,26 +144,35 @@ func (m *SliceMap[K, V]) Delete(key K) {
 		}
 		delete(m.items, key)
 	}
+	m.Unlock()
 }
 
 // Get returns the value based on its key. If the key does not exist, an empty value is returned.
-func (m *SliceMap[K, V]) Get(key K) (val V) {
+func (m *SafeSliceMap[K, V]) Get(key K) (val V) {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Get(key)
 }
 
 // Load returns the value based on its key, and a boolean indicating whether it exists in the maps.
-// This is the same interface as sync.StdMap.Load()
-func (m *SliceMap[K, V]) Load(key K) (val V, ok bool) {
+// This is the same interface as sync.Map.Load()
+func (m *SafeSliceMap[K, V]) Load(key K) (val V, ok bool) {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Load(key)
 }
 
 // Has returns true if the given key exists in the maps.
-func (m *SliceMap[K, V]) Has(key K) (ok bool) {
+func (m *SafeSliceMap[K, V]) Has(key K) (ok bool) {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Has(key)
 }
 
 // GetAt returns the value based on its position. If the position is out of bounds, an empty value is returned.
-func (m *SliceMap[K, V]) GetAt(position int) (val V) {
+func (m *SafeSliceMap[K, V]) GetAt(position int) (val V) {
+	m.RLock()
+	defer m.RUnlock()
 	if position < len(m.order) && position >= 0 {
 		val, _ = m.items[m.order[position]]
 	}
@@ -161,7 +180,9 @@ func (m *SliceMap[K, V]) GetAt(position int) (val V) {
 }
 
 // GetKeyAt returns the key based on its position. If the position is out of bounds, an empty value is returned.
-func (m *SliceMap[K, V]) GetKeyAt(position int) (key K) {
+func (m *SafeSliceMap[K, V]) GetKeyAt(position int) (key K) {
+	m.RLock()
+	defer m.RUnlock()
 	if position < len(m.order) && position >= 0 {
 		key = m.order[position]
 	}
@@ -169,24 +190,33 @@ func (m *SliceMap[K, V]) GetKeyAt(position int) (key K) {
 }
 
 // Values returns a slice of the values in the order they were added or sorted.
-func (m *SliceMap[K, V]) Values() (vals []V) {
+func (m *SafeSliceMap[K, V]) Values() (vals []V) {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Values()
 }
 
-// Keys returns the keys of the maps, in the order they were added or sorted
-func (m *SliceMap[K, V]) Keys() (keys []K) {
+// Keys returns the keys of the maps, in the order they were added or sorted.
+func (m *SafeSliceMap[K, V]) Keys() (keys []K) {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Keys()
 }
 
-// Len returns the number of items in the maps
-func (m *SliceMap[K, V]) Len() int {
+// Len returns the number of items in the maps.
+func (m *SafeSliceMap[K, V]) Len() int {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Len()
 }
 
 // MarshalBinary implements the BinaryMarshaler interface to convert the maps to a byte stream.
 // If you are using a sort function, you must save and restore the sort function in a separate operation
 // since functions are not serializable.
-func (m *SliceMap[K, V]) MarshalBinary() (data []byte, err error) {
+func (m *SafeSliceMap[K, V]) MarshalBinary() (data []byte, err error) {
+	m.RLock()
+	defer m.RUnlock()
+
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
 
@@ -199,10 +229,13 @@ func (m *SliceMap[K, V]) MarshalBinary() (data []byte, err error) {
 }
 
 // UnmarshalBinary implements the BinaryUnmarshaler interface to convert a byte stream to a
-// SliceMap.
-func (m *SliceMap[K, V]) UnmarshalBinary(data []byte) (err error) {
+// SafeSliceMap.
+func (m *SafeSliceMap[K, V]) UnmarshalBinary(data []byte) (err error) {
 	var items map[K]V
 	var order []K
+
+	m.Lock()
+	defer m.Unlock()
 
 	buf := bytes.NewBuffer(data)
 	dec := gob.NewDecoder(buf)
@@ -218,15 +251,21 @@ func (m *SliceMap[K, V]) UnmarshalBinary(data []byte) (err error) {
 }
 
 // MarshalJSON implements the json.Marshaler interface to convert the maps into a JSON object.
-func (m *SliceMap[K, V]) MarshalJSON() (data []byte, err error) {
+func (m *SafeSliceMap[K, V]) MarshalJSON() (data []byte, err error) {
+	m.RLock()
+	defer m.RUnlock()
+
 	// Json objects are unordered
 	return m.items.MarshalJSON()
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface to convert a json object to a SliceMap.
+// UnmarshalJSON implements the json.Unmarshaler interface to convert a json object to a Map.
 // The JSON must start with an object.
-func (m *SliceMap[K, V]) UnmarshalJSON(data []byte) (err error) {
+func (m *SafeSliceMap[K, V]) UnmarshalJSON(data []byte) (err error) {
 	var items map[K]V
+
+	m.Lock()
+	defer m.Unlock()
 
 	if err = json.Unmarshal(data, &items); err == nil {
 		m.items = items
@@ -242,10 +281,10 @@ func (m *SliceMap[K, V]) UnmarshalJSON(data []byte) (err error) {
 }
 
 // Merge the given maps into the current one.
-func (m *SliceMap[K, V]) Merge(in MapI[K, V]) {
+func (m *SafeSliceMap[K, V]) Merge(in MapI[K, V]) {
 	if in != nil {
 		in.Range(func(k K, v V) bool {
-			m.Set(k, v)
+			m.Set(k, v) // This will lock and unlock
 			return true
 		})
 	}
@@ -254,7 +293,9 @@ func (m *SliceMap[K, V]) Merge(in MapI[K, V]) {
 // Range will call the given function with every key and value in the order
 // they were placed in the maps, or in if you sorted the maps, in your custom order.
 // If f returns false, it stops the iteration. This pattern is taken from sync.Map.
-func (m *SliceMap[K, V]) Range(f func(key K, value V) bool) {
+func (m *SafeSliceMap[K, V]) Range(f func(key K, value V) bool) {
+	m.RLock()
+	defer m.RUnlock()
 	if m.items != nil {
 		for _, k := range m.order {
 			if !f(k, m.items[k]) {
@@ -268,21 +309,27 @@ func (m *SliceMap[K, V]) Range(f func(key K, value V) bool) {
 //
 // If the values are not comparable, you should implement the Equaler interface on the values.
 // Otherwise, you will get a runtime panic.
-func (m *SliceMap[K, V]) Equal(m2 MapI[K, V]) bool {
+func (m *SafeSliceMap[K, V]) Equal(m2 MapI[K, V]) bool {
+	m.RLock()
+	defer m.RUnlock()
 	return m.items.Equal(m2)
 }
 
 // Clear removes all the items in the maps.
-func (m *SliceMap[K, V]) Clear() {
+func (m *SafeSliceMap[K, V]) Clear() {
+	m.Lock()
 	m.items = nil
 	m.order = nil
+	m.Unlock()
 }
 
 // String outputs the maps as a string.
-func (m *SliceMap[K, V]) String() string {
+func (m *SafeSliceMap[K, V]) String() string {
 	var s string
 
 	s = "{"
+
+	// Range will handle locking
 	m.Range(func(k K, v V) bool {
 		s += fmt.Sprintf(`%#v:%#v,`, k, v)
 		return true
@@ -290,38 +337,4 @@ func (m *SliceMap[K, V]) String() string {
 	s = strings.TrimRight(s, ",")
 	s += "}"
 	return s
-}
-
-// Equaler is the interface that implements an Equal function and that provides a way for the
-// various MapI like objects to determine if they are equal.
-//
-// In particular, if your Map has
-// non-comparible values, like a slice, but you would still like to call Equal() on that
-// maps, define an Equal function on the values to do the comparison. For example:
-//
-//   type mySlice []int
-//
-//   func (s mySlice) Equal(b any) bool {
-//   	if s2, ok := b.(mySlice); ok {
-//   		if len(s) == len(s2) {
-//   			for i, v := range s2 {
-//   				if s[i] != v {
-//   					return false
-//   				}
-//   			}
-//   			return true
-//   		}
-//   	}
-//   	return false
-//   }
-type Equaler interface {
-	Equal(a any) bool
-}
-
-func equalValues(a, b any) bool {
-	if e, ok := a.(Equaler); ok {
-		return e.Equal(b)
-	}
-
-	return a == b
 }
