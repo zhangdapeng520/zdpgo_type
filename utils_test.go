@@ -173,3 +173,60 @@ func TestMergeSerialSliceFromDoubleArrInt(t *testing.T) {
 		}
 	}
 }
+
+// 测试驼峰转蛇形
+func TestStringCamelToSnake(t *testing.T) {
+	testData := []struct {
+		s        string
+		expected string
+	}{
+		{"Abc", "abc"},
+		{"AbcDDD", "abc_d_d_d"},
+		{"helloWorld", "hello_world"},
+	}
+
+	for _, tt := range testData {
+		snake := StringCamelToSnake(tt.s)
+		if snake != tt.expected {
+			t.Errorf("expected %v got %v", tt.expected, snake)
+		}
+	}
+}
+
+// 测试蛇形转驼峰
+func TestStringSnakeToCamel(t *testing.T) {
+	testData := []struct {
+		s        string
+		expected string
+	}{
+		{"abc", "Abc"},
+		{"abc_d_d_d", "AbcDDD"},
+		{"hello_world", "HelloWorld"},
+	}
+
+	for _, tt := range testData {
+		snake := StringSnakeToCamel(tt.s)
+		if snake != tt.expected {
+			t.Errorf("expected %v got %v", tt.expected, snake)
+		}
+	}
+}
+
+// 测试蛇形转小驼峰
+func TestStringSnakeToCamelSmall(t *testing.T) {
+	testData := []struct {
+		s        string
+		expected string
+	}{
+		{"abc", "abc"},
+		{"abc_d_d_d", "abcDDD"},
+		{"hello_world", "helloWorld"},
+	}
+
+	for _, tt := range testData {
+		snake := StringSnakeToCamelSmall(tt.s)
+		if snake != tt.expected {
+			t.Errorf("expected %v got %v", tt.expected, snake)
+		}
+	}
+}
