@@ -250,31 +250,44 @@ func MergeSerialSliceFromDoubleArrInt(arr [][]int) [][]int {
 	}
 
 	// 开始合并
-	var tempArr = arr[0]
-	for i := 1; i < len(arr); i++ {
-		// 判断是否连续
-		arr1 := arr[i]
-
-		// 不符合规范
-		if arr1[0] > arr1[1] || arr1[2] > arr1[3] {
-			return result
-		}
-
-		// 判断连续
-		if arr1[0] <= tempArr[1] && arr1[2] <= tempArr[3] {
-			tempArr[1] = arr1[1]
-			tempArr[3] = arr1[3]
-		} else {
-			result = append(result, tempArr)
-			tempArr = arr[i]
+	var count int
+	for {
+		arr, count = mergeArr(arr)
+		if count == 0 {
+			break
 		}
 	}
 
-	// 将最后的数组追加
-	result = append(result, tempArr)
-
 	// 返回
-	return result
+	return arr
+}
+
+func mergeArr(arr [][]int) ([][]int, int) {
+	if len(arr) <= 1 {
+		return arr, 0
+	}
+
+	var count = 0
+	var i = 1
+	var isMerge = false
+	var tempArr [][]int
+	for i < len(arr) {
+		if arr[i][0] <= arr[i-1][1] {
+			tempArr = append(tempArr, []int{arr[i-1][0], arr[i][1], arr[i-1][2], arr[i][3]})
+			count++
+			isMerge = true
+			i++
+		} else {
+			if !isMerge {
+				tempArr = append(tempArr, []int{arr[i-1][0], arr[i-1][1], arr[i-1][2], arr[i-1][3]})
+			}
+			if i == len(arr)-1 {
+				tempArr = append(tempArr, []int{arr[i][0], arr[i][1], arr[i][2], arr[i][3]})
+			}
+			i++
+		}
+	}
+	return tempArr, count
 }
 
 // StringCamelToSnake 驼峰转蛇形
