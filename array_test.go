@@ -87,3 +87,47 @@ func TestArray_AddIfNotExists(t *testing.T) {
 	arr.AddIfNotExists("cc")
 	fmt.Println(arr.ToSliceValues())
 }
+
+func TestArray_Pop(t *testing.T) {
+	data := []struct {
+		value    []int
+		excepted int
+	}{
+		{value: []int{1, 2, 3}, excepted: 3},
+		{value: []int{1, 2}, excepted: 2},
+		{value: []int{1, 2, 22, 33}, excepted: 33},
+		{value: []int{}, excepted: 0},
+		{value: []int{-1, -2, -3, 0}, excepted: 0},
+	}
+
+	for _, v := range data {
+		arr := NewArray(v.value...)
+		vv := arr.Pop()
+		if vv != v.excepted {
+			t.Errorf("expected %v, got %v\n", v.excepted, vv)
+		}
+	}
+}
+
+func TestArray_PopFirst(t *testing.T) {
+	data := []struct {
+		value    []int
+		excepted int
+	}{
+		{value: []int{1, 2, 3}, excepted: 1},
+		{value: []int{1, 2}, excepted: 1},
+		{value: []int{1, 2, 22, 33}, excepted: 1},
+		{value: []int{}, excepted: 0},
+		{value: []int{1}, excepted: 1},
+		{value: []int{0}, excepted: 0},
+		{value: []int{-1, -2, -3, 0}, excepted: -1},
+	}
+
+	for _, v := range data {
+		arr := NewArray(v.value...)
+		vv := arr.PopFirst()
+		if vv != v.excepted {
+			t.Errorf("expected %v, got %v\n", v.excepted, vv)
+		}
+	}
+}
